@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UploadRouteImport } from './routes/upload'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as CreateRouteImport } from './routes/create'
 import { Route as AssetsRouteImport } from './routes/assets'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReviewJobIdRouteImport } from './routes/review.$jobId'
@@ -26,6 +27,11 @@ const UploadRoute = UploadRouteImport.update({
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreateRoute = CreateRouteImport.update({
+  id: '/create',
+  path: '/create',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssetsRoute = AssetsRouteImport.update({
@@ -62,6 +68,7 @@ const PlanJobIdRoute = PlanJobIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/assets': typeof AssetsRoute
+  '/create': typeof CreateRoute
   '/history': typeof HistoryRoute
   '/upload': typeof UploadRoute
   '/plan/$jobId': typeof PlanJobIdRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/assets': typeof AssetsRoute
+  '/create': typeof CreateRoute
   '/history': typeof HistoryRoute
   '/upload': typeof UploadRoute
   '/plan/$jobId': typeof PlanJobIdRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/assets': typeof AssetsRoute
+  '/create': typeof CreateRoute
   '/history': typeof HistoryRoute
   '/upload': typeof UploadRoute
   '/plan/$jobId': typeof PlanJobIdRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/assets'
+    | '/create'
     | '/history'
     | '/upload'
     | '/plan/$jobId'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/assets'
+    | '/create'
     | '/history'
     | '/upload'
     | '/plan/$jobId'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/assets'
+    | '/create'
     | '/history'
     | '/upload'
     | '/plan/$jobId'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AssetsRoute: typeof AssetsRoute
+  CreateRoute: typeof CreateRoute
   HistoryRoute: typeof HistoryRoute
   UploadRoute: typeof UploadRoute
   PlanJobIdRoute: typeof PlanJobIdRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/create': {
+      id: '/create'
+      path: '/create'
+      fullPath: '/create'
+      preLoaderRoute: typeof CreateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assets': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AssetsRoute: AssetsRoute,
+  CreateRoute: CreateRoute,
   HistoryRoute: HistoryRoute,
   UploadRoute: UploadRoute,
   PlanJobIdRoute: PlanJobIdRoute,
@@ -208,3 +229,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
